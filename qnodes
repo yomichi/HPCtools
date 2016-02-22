@@ -1,0 +1,66 @@
+#!/bin/sh
+
+usage="usage: `basename $0` (small|middle|large|acc-middle|acc-large|fat)"
+
+if [ $# -ne 1 ]; then
+  echo $usage
+  exit -1
+fi
+
+case "$1" in
+  "small" ) qstat -a \
+            | gawk 'BEGIN {F=0; B=0; L=0}
+                    $10 ~ /R/ && $3 ~ /F4cpu/ {F += $6; print}
+                    $10 ~ /R/ && $3 ~ /B4cpu/ {B += $6; print}
+                    $10 ~ /R/ && $3 ~ /L4cpu/ {L += $6; print}
+                    END {print "F4cpu :", F;
+                         print "L4cpu :", L;
+                         print "B4cpu :", B;
+                         print "total :", F+L+B, "/ 216"}';;
+  "middle" ) qstat -a \
+            | gawk 'BEGIN {F=0; B=0; L=0}
+                    $10 ~ /R/ && $3 ~ /F36cpu/ {F += $6; print}
+                    $10 ~ /R/ && $3 ~ /B36cpu/ {B += $6; print}
+                    $10 ~ /R/ && $3 ~ /L36cpu/ {L += $6; print}
+                    END {print "F36cpu :", F;
+                         print "L36cpu :", L;
+                         print "B36cpu :", B;
+                         print "total  :", F+L+B, "/ 288"}';;
+  "large" ) qstat -a \
+            | gawk 'BEGIN {F=0; B=0; L=0}
+                    $10 ~ /R/ && $3 ~ /F144cpu/ {F += $6; print}
+                    $10 ~ /R/ && $3 ~ /B144cpu/ {B += $6; print}
+                    $10 ~ /R/ && $3 ~ /L144cpu/ {L += $6; print}
+                    END {print "F144cpu :", F;
+                         print "L144cpu :", L;
+                         print "B144cpu :", B;
+                         print "total   :", F+L+B, "/ 1008"}';;
+  "acc-middle" ) qstat -a \
+            | gawk 'BEGIN {F=0; B=0; L=0}
+                    $10 ~ /R/ && $3 ~ /F18acc/ {F += $6; print}
+                    $10 ~ /R/ && $3 ~ /B18acc/ {B += $6; print}
+                    $10 ~ /R/ && $3 ~ /L18acc/ {L += $6; print}
+                    END {print "F18acc :", F;
+                         print "L18acc :", L;
+                         print "B18acc :", B;
+                         print "total  :", F+L+B, "/ 108"}';;
+  "acc-large" ) qstat -a \
+            | gawk 'BEGIN {F=0; B=0; L=0}
+                    $10 ~ /R/ && $3 ~ /F72acc/ {F += $6; print}
+                    $10 ~ /R/ && $3 ~ /B72acc/ {B += $6; print}
+                    $10 ~ /R/ && $3 ~ /L72acc/ {L += $6; print}
+                    END {print "F72acc :", F;
+                         print "L72acc :", L;
+                         print "B72acc :", B;
+                         print "total  :", F+L+B, "/ 144"}';;
+  "fat" ) qstat -a \
+            | gawk 'BEGIN {F=0; B=0; L=0}
+                    $10 ~ /R/ && $3 ~ /F2fat/ {F += $6; print}
+                    $10 ~ /R/ && $3 ~ /B2fat/ {B += $6; print}
+                    $10 ~ /R/ && $3 ~ /L2fat/ {L += $6; print}
+                    END {print "F2fat :", F;
+                         print "L2fat :", L;
+                         print "B2fat :", B;
+                         print "total  :", F+L+B, "/ 17"}';;
+  * ) echo $usage; exit -1;;
+esac

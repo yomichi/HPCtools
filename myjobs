@@ -1,0 +1,9 @@
+#!/bin/sh
+
+USERS='k028800 k014803'
+
+qstat -a | head -n 5
+for user in ${USERS[@]}; do
+qstat -a -u $user | tail -n +6 | awk '$10 ~ /R/'
+qstat -T -u $user | tail -n +7 | awk '$10 !~ /R/'
+done
