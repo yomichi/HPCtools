@@ -22,5 +22,7 @@
 ユーザの `/work` 領域にある全てのファイルのうち、最終更新が1週間以上前のファイルのタイムスタンプを更新します。
 
 ## ライセンス
+Copyright: Yuichi Motoyama y-motoyama@issp.u-tokyo.ac.jp
+
 `utconv` を除き、[Boost Software License Version 1.0](http://www.boost.org/LICENSE_1_0.txt) の元で公開しています。
 `utconv` は[パブリックドメインにて公開されているもの](https://github.com/ShellShoccar-jpn/misc-tools)を再配布しています。
