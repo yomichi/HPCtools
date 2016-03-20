@@ -1,0 +1,11 @@
+#!/bin/sh
+
+if [ $# == 0 ]; then
+  echo "usage: username <user-id>"
+  exit 127
+fi
+
+userid="$1"
+
+finger $userid | head -n1 | awk -v userid=$userid '{print userid " ("$4" "$5")"}'
+
