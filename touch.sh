@@ -1,10 +1,11 @@
 #!/bin/sh
 
-# 一週間以上前のファイルを列挙・タイムスタンプを更新する
-#
+## SekireiTools (https://github.com/yomichi/SekireiTools)
+## Copyright (c) Yuichi Motoyama <yomichi@tsg.jp>
+## Distributed under the Boost Software License Version 1.0.
+
 # ref: リッチ・ミカン「Shell Script ライトクックブック」 まつらリッチ研究所 (2014)
 #      http://richlab.org/coterie/ssr2.html
-#
 
 WORK="`echo $HOME | sed 's/home/work/'`"
 

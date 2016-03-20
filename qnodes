@@ -1,5 +1,9 @@
 #!/bin/sh
 
+## SekireiTools (https://github.com/yomichi/SekireiTools)
+## Copyright (c) Yuichi Motoyama <yomichi@tsg.jp>
+## Distributed under the Boost Software License Version 1.0.
+
 usage="usage: `basename $0` (small|middle|large|acc-middle|acc-large|fat)"
 
 if [ $# -ne 1 ]; then
