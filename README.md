@@ -6,7 +6,7 @@
 現在動いているジョブの一覧およびキューごとの使用中ノードの数を、
 通常キュー(F)、長時間キュー(L)、バックグラウンドキュー(L) の区別なく表示します。
 
-たとえば `qnodes small` とすると、 `F4cpu`, `L4cpu`, `B4cpu` キューで動いているジョブおよび専有ノードの合計数が表示されます。
+たとえば `qnodes small` とすると、 `F4cpu`, `L4cpu`, `B4cpu` キューで動いているジョブおよび占有ノードの合計数が表示されます。
 `qnodes` と実行すると、有効な引数の一覧が出力されるので、適当なキューを選んで再度実行してください。
 
 ## `myjobs`
@@ -18,6 +18,14 @@
 `myjobs` と同じディレクトリに `users.txt` という名前でおいておくと、
 複数ユーザについてジョブ状況を確認できます。
 
+## `qsh`
+インタラクティブジョブを投入します。
+引数として使用ノード数を指定できます（デフォルト値は1）。
+
+## `machinefile`
+割り当てられたノード名を列記します。
+引数として `julia` を渡すと、julia の`--machinefile` フォーマットで表示します。
+
 ## `touch.sh`
 ユーザの `/work` 領域にある全てのファイルのうち、最終更新が1週間以上前のファイルのタイムスタンプを更新します。
 
@@ -26,3 +34,5 @@ Copyright: Yuichi Motoyama y-motoyama@issp.u-tokyo.ac.jp
 
 `utconv` を除き、[Boost Software License Version 1.0](http://www.boost.org/LICENSE_1_0.txt) の元で公開しています。
 `utconv` は[パブリックドメインにて公開されているもの](https://github.com/ShellShoccar-jpn/misc-tools)を再配布しています。
+
+本スクリプト集は無保証です。ご自身の責任において使用してください。
