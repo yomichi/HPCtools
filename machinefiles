@@ -1,0 +1,13 @@
+#!/bin/sh
+
+if [ "_$PBS_NODEFILE" == "_" ]; then
+    echo "ERROR: You are in login node."
+    exit 0
+fi
+
+if [ "_$1" == "_julia" ]; then
+    sort $PBS_NODEFILE | uniq -c | awk '{print $1,"*",$2}'
+else
+    sort $PBS_NODEFILE
+fi
+
