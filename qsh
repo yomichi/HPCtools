@@ -1,0 +1,11 @@
+#!/bin/sh
+if [ "_$1" == "_" ];then
+    nnodes=1
+elif [ $1 -ge 1 -a $1 -le 18 ]; then
+    nnodes=$1
+else
+    echo "ERROR: invalid number of nodes"
+    exit 127
+fi
+script_dir=$(dirname $(readlink -f $0))
+qsub -node $nnodes $script_dir/interactive.sh
