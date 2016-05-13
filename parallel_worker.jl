@@ -14,14 +14,3 @@ function ex(job)
     return nothing
 end
 
-function makejobs(jobfile)
-    jobs = Job[]
-    io = open(jobfile)
-    for (jobid, line) in enumerate(eachline(io))
-        push!(jobs, Job(line, jobid))
-    end
-    close(io)
-    jobs2 = Tuple{Job, Int}[(j,n) for j in jobs]
-    return jobs2
-end
-

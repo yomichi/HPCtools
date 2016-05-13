@@ -1,6 +1,4 @@
-#!/home/i0014/i001400/opt/julia/bin/julia
-
-include("parallel_detail.jl")
+#!/usr/bin/env julia
 
 function addnodes()
     nodefile = get(ENV,"PBS_NODEFILE","")
@@ -9,12 +7,34 @@ function addnodes()
     end
     nodes = Tuple{ASCIIString,Int}[(n,24) for n in split(readall(`sort -u $nodefile`))]
     if length(nodes) == 1
-        ps = addprocs()
+        ps = addprocs(topology=:master_slave)
     else
-        ps = addprocs(nodes)
+        ps = addprocs(nodes, topology=:master_slave)
     end
-    @sync for p in procs()
-        @async remotecall_fetch(p, include, "parallel_detail.jl")
+    @sync for p in ps
+        @async remotecall_fetch(p, include, "parallel_worker.jl")
     end
     return ps
 end
+
+function makejobs(jobfile)
+    jobs = Job[]
+    io = open(jobfile)
+    for (jobid, line) in enumerate(eachline(io))
+        push!(jobs, Job(line, jobid))
+    end
+    close(io)
+    return jobs
+end
+
+if length(ARGS) != 1 
+    info("usage: parallel.jl <jobfile>")
+    exit()
+elseif !ispath(ARGS[1])
+    error("jobfile ${ARGS[1]} does not exist.")
+end
+
+jobs = makejobs(ARGS[1])
+addnodes()
+pmap(ex, jobs)
+
