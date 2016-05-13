@@ -29,6 +29,29 @@
 ## `touch.sh`
 ユーザの `/work` 領域にある全てのファイルのうち、最終更新が1週間以上前のファイルのタイムスタンプを更新します。
 
+## `parallel.jl`
+ジョブスケジューリングを行います。
+引数として、ジョブリストファイルを渡してください。
+ジョブリストファイルの各行に、並列に実行したいコマンドを記入してください。
+`;` や`&&` などを利用することで、複数コマンドを逐次的に実行することも可能です。
+
+```
+> cat job.txt
+./a.out input.001
+./a.out input.002
+./a.out input.003
+ ...
+./a.out input.100
+
+> parallel.jl job.txt
+```
+
+各ジョブの標準出力と標準エラー出力は、 `(JOBID)-(WORKERID).out`, `(JOBID)-(WORKERID).err` に保存されます。
+
+実行の際には、[Julia](http://julialang.org) インタプリタに実行パスを通す必要があります。
+複数ノードを利用しても、ジョブ数が割当コア数よりも多くても機能します。
+現在はシリアルジョブの並列実行のみに対応しています。
+
 ## ライセンス
 Copyright: Yuichi Motoyama y-motoyama@issp.u-tokyo.ac.jp
 

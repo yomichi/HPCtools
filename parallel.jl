@@ -40,6 +40,5 @@ elseif !ispath(ARGS[1])
 end
 
 jobs = makejobs(ARGS[1])
-ps = addnodes()
+addnodes()
 pmap(ex, jobs)
-
