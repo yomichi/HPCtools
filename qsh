@@ -1,28 +1,29 @@
 #!/bin/sh
-usage="usage: $0 [--mpi=NUM_MPI] [--omp=NUM_OPENMP] [--dry] [NUM_NODE]"
+usage="usage: $(basename $(readlink -f $0)) [--queue=(cpu|acc|fat)] [--omp=NUM_OPENMP] [--dry] [NUM_NODE]"
 
-nnodes=""
-nprocs=""
-nthreads=""
+nnodes=1
+nprocs=1
+nthreads=24
+queue="cpu"
 dryrun=""
 
 for arg in $@; do
-    check_mpi=""
-    check_mpi=${arg#--mpi=}
     check_omp=""
     check_omp=${arg#--omp=}
-    if [ "$check_mpi" != "$arg" ]; then
-        if [ "_`echo $check_mpi | grep -E '^[0-9]+$'`" == "_" ]; then
-            echo $usage
-            exit 127
-        fi
-        nprocs=$check_mpi
-    elif [ "$check_omp" != "$arg" ]; then
+    check_queue=""
+    check_queue=${arg#--queue=}
+    if [ "$check_omp" != "$arg" ]; then
         if [ "_`echo $check_omp | grep -E '^[0-9]+$'`" == "_" ]; then
             echo $usage
             exit 127
         fi
         nthreads=$check_omp
+    elif [ "$check_queue" != "$arg" ]; then
+        if [ "_`echo $check_queue | grep -E '(cpu|acc|fat)'`" == "_" ]; then
+            echo $usage
+            exit 127
+        fi
+        queue=$check_queue
     elif [ "$arg" == "--dry" ]; then
         dryrun=1
     elif [ "_`echo $arg | grep -E '^[0-9]+$'`" == "_" ]; then
@@ -33,22 +34,27 @@ for arg in $@; do
     fi
 done
 
-if [ "_$nnodes" == "_" ] ; then
-    nnodes=1
-fi
+case $nthreads in
+    1  ) nprocs=`echo 24 \* $nnodes | bc -l` ;;
+    2  ) nprocs=`echo 12 \* $nnodes | bc -l` ;;
+    3  ) nprocs=`echo 8 \* $nnodes | bc -l` ;;
+    4  ) nprocs=`echo 6 \* $nnodes | bc -l` ;;
+    6  ) nprocs=`echo 4 \* $nnodes | bc -l` ;;
+    8  ) nprocs=`echo 3 \* $nnodes | bc -l` ;;
+    12 ) nprocs=`echo 2 \* $nnodes | bc -l` ;;
+    24 ) nprocs=`echo 1 \* $nnodes | bc -l` ;;
+    *  ) echo "Invalid input: --omp=<NUM_OPENMP> should be divisor of 24."; exit 127;; 
+esac
 
-if [ "_$nprocs" == "_" ] ; then
-    nprocs=$nnodes
-fi
+case $queue in
+    "cpu" ) queue=i18cpu;;
+    "acc" ) queue=i9acc;;
+    "fat" ) queue=i1fat;;
+    *) exit 127;;
+esac
 
-if [ "_$nthreads" == "_" ] ; then
-    procs_per_node=`echo $nprocs / $nnodes | bc -l`
-    nthreads=`echo 24 / $procs_per_node | bc`
-fi
-
-script_dir=$(dirname $(readlink -f $0))
 if [ "$dryrun" == "1" ]; then
-    echo "qsub -node $nnodes -mpi $nprocs -omp $nthreads $script_dir/interactive.sh"
+    echo "qsub -queue $queue -node $nnodes -mpi $nprocs -omp $nthreads -I"
 else
-    qsub -node $nnodes -mpi $nprocs -omp $nthreads $script_dir/interactive.sh
+    qsub -queue $queue -node $nnodes -mpi $nprocs -omp $nthreads -I
 fi
