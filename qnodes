@@ -15,15 +15,15 @@ case "$1" in
   "small" ) qstat -a \
             | gawk 'BEGIN {F=0; B=0; L=0}
   $10 ~ /R/ && $3 ~ /F4cpu/ {F += $6;
-                             cmd="username "$2; cmd | getline name;
-                             split($1,a,/\./); jobid = a[1];
+                             cmd="username "$2; cmd | getline name; close(cmd);
+                             split($1,a,/\./); jobid = a[1]; 
                              printf "%s F %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /B4cpu/ {B += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s B %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /L4cpu/ {L += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
                     END {print "F4cpu :", F;
@@ -33,15 +33,15 @@ case "$1" in
   "middle" ) qstat -a \
             | gawk 'BEGIN {F=0; B=0; L=0}
   $10 ~ /R/ && $3 ~ /F36cpu/ {F += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s F %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /B36cpu/ {B += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s B %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /L36cpu/ {L += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
                     END {print "F36cpu :", F;
@@ -51,15 +51,15 @@ case "$1" in
   "large" ) qstat -a \
             | gawk 'BEGIN {F=0; B=0; L=0}
   $10 ~ /R/ && $3 ~ /F144cpu/ {F += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s F %10s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /B144cpu/ {B += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s B %10s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /L144cpu/ {L += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
                     END {print "F144cpu :", F;
@@ -69,15 +69,15 @@ case "$1" in
   "acc-middle" ) qstat -a \
             | gawk 'BEGIN {F=0; B=0; L=0}
   $10 ~ /R/ && $3 ~ /F18acc/ {F += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s F %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /B18acc/ {B += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s B %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /L18acc/ {L += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
                     END {print "F18acc :", F;
@@ -87,15 +87,15 @@ case "$1" in
   "acc-large" ) qstat -a \
             | gawk 'BEGIN {F=0; B=0; L=0}
   $10 ~ /R/ && $3 ~ /F72acc/ {F += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s F %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /B72acc/ {B += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s B %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /L72acc/ {L += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
                     END {print "F72acc :", F;
@@ -105,15 +105,15 @@ case "$1" in
   "fat" ) qstat -a \
             | gawk 'BEGIN {F=0; B=0; L=0}
   $10 ~ /R/ && $3 ~ /F2fat/ {F += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s F %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /B2fat/ {B += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s B %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 ~ /R/ && $3 ~ /L2fat/ {L += $6;
-                             cmd="username "$2; cmd | getline name;
+                             cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
                     END {print "F2fat :", F;
