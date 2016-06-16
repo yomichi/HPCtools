@@ -1,0 +1,53 @@
+#!/bin/sh
+usage="usage: $(basename $(readlink -f $0)) [--ok] [--notok] [--num=<number of chain>] <script_name>"
+
+if [ $# -lt 1 ] ;then
+    echo $usage
+    exit 127
+fi
+
+sname=""
+nchain=1
+after="afterany"
+
+for arg in $@; do
+    check_num=""
+    check_num=${arg#--num=}
+    if [ "$check_num" != "$arg" ]; then
+        if [ -z "`echo $check_num | grep -E '^[0-9]+$'`" ]; then
+            echo $usage
+            exit 127
+        fi
+        nchain=$check_num
+    elif [ "$arg" == "--ok" ]; then
+        after="afterok"
+    elif [ "$arg" == "--notok" ]; then
+        after="afternotok"
+    elif [ "_`echo $arg | grep -E '^[0-9]+$'`" == "_" ]; then
+        echo $usage
+        exit 127
+    else
+        sname=$arg
+    fi
+done
+
+
+if [ ! -f $sname ]; then
+    echo "$sname does not exist"
+    exit 127
+fi
+
+if [ ! $nchain -gt 1 ] ; then
+    echo "<number of chain> should be greater than 1"
+    exit 127
+fi
+
+jobid=`qsub $sname | cut -d '.' -f 1,1`
+
+cname=`mktemp qchain_XXXXXX.sh`
+
+for i in `seq 2 $nchain` ; do
+    awk --assign job=$jobid --assign after=$after 'NR==2 {print "#PBS -W depend="after":"job} {print}' $sname > $cname
+    jobid=`qsub $cname | cut -d '.' -f 1,1`
+    rm -f $cname
+done

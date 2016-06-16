@@ -19,10 +19,22 @@
 複数ユーザについてジョブ状況を確認できます。
 
 ## `qsh`
+``` bash
+usage: qsh [--queue=(cpu|acc|fat)] [--omp=<NUM_OPENMP>] <NUM_NODES>
+```
+
 インタラクティブジョブを投入し、ログインします。
 引数として使用ノード数を指定できます（デフォルト値は1）。
 `--omp=<NUM_OPENMP>` オプションを使うことで、MPIプロセスあたりのOpenMP スレッド数を指定できます（デフォルト値は24）。指定可能なスレッド数は24 の約数だけです。
 `--queue=(cpu|acc|fat)` オプションによって、使うキューを切り替えられます（デフォルトはcpu）
+
+## `qchain`
+``` bash
+usage: qchain [--ok] [--notok] [--num=<number of chain>] <scriptname>
+```
+
+与えたジョブスクリプト `<scriptname>` を、与えた回数 `<number of chain>` だけ繰り返すチェーンジョブを投入します。
+デフォルトでは `afterany` でつながりますが、 `--ok` や `--notok` を指定することで `afterok` および `afternotok` でつなげることができます。
 
 ## `machinefile`
 割り当てられたノード名を列記します。
