@@ -23,9 +23,6 @@ for arg in $@; do
         after="afterok"
     elif [ "$arg" == "--notok" ]; then
         after="afternotok"
-    elif [ "_`echo $arg | grep -E '^[0-9]+$'`" == "_" ]; then
-        echo $usage
-        exit 127
     else
         sname=$arg
     fi
