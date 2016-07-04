@@ -36,6 +36,9 @@ usage: qchain [--ok] [--notok] [--num=<number of chain>] <scriptname>
 与えたジョブスクリプト `<scriptname>` を、与えた回数 `<number of chain>` だけ繰り返すチェーンジョブを投入します。
 デフォルトでは `afterany` でつながりますが、 `--ok` や `--notok` を指定することで `afterok` および `afternotok` でつなげることができます。
 
+## `jobid`
+ジョブID を返します。
+
 ## `machinefile`
 割り当てられたノード名を列記します。
 引数として `julia` を渡すと、julia の`--machinefile` フォーマットで表示します。
