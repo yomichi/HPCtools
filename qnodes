@@ -13,7 +13,7 @@ fi
 
 case "$1" in
   "small" ) qstat -a \
-            | gawk 'BEGIN {F=0; B=0; L=0}
+            | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob=0}
   $10 ~ /R/ && $3 ~ /F4cpu/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1]; 
@@ -26,12 +26,15 @@ case "$1" in
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
-                    END {print "F4cpu :", F;
-                         print "L4cpu :", L;
-                         print "B4cpu :", B;
-                         print "total :", F+L+B, "/ 216"}';;
+  $10 !~ /R/ && $3 ~ /4cpu/ {Wnode += $6; Wjob += 1}
+                    END {print "F4cpu   :", F;
+                         print "L4cpu   :", L;
+                         print "B4cpu   :", B;
+                         print "total   :", F+L+B, "/ 216";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
   "middle" ) qstat -a \
-            | gawk 'BEGIN {F=0; B=0; L=0}
+            | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob=0}
   $10 ~ /R/ && $3 ~ /F36cpu/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
@@ -44,12 +47,15 @@ case "$1" in
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 !~ /R/ && $3 ~ /36cpu/ {Wnode += $6; Wjob += 1}
                     END {print "F36cpu :", F;
                          print "L36cpu :", L;
                          print "B36cpu :", B;
-                         print "total  :", F+L+B, "/ 288"}';;
+                         print "total  :", F+L+B, "/ 288";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
   "large" ) qstat -a \
-            | gawk 'BEGIN {F=0; B=0; L=0}
+            | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F144cpu/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
@@ -62,12 +68,15 @@ case "$1" in
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 !~ /R/ && $3 ~ /144cpu/ {Wnode += $6; Wjob += 1}
                     END {print "F144cpu :", F;
                          print "L144cpu :", L;
                          print "B144cpu :", B;
-                         print "total   :", F+L+B, "/ 1008"}';;
+                         print "total   :", F+L+B, "/ 1008";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
   "acc-middle" ) qstat -a \
-            | gawk 'BEGIN {F=0; B=0; L=0}
+            | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F18acc/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
@@ -80,12 +89,15 @@ case "$1" in
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 !~ /R/ && $3 ~ /18cpu/ {Wnode += $6; Wjob += 1}
                     END {print "F18acc :", F;
                          print "L18acc :", L;
                          print "B18acc :", B;
-                         print "total  :", F+L+B, "/ 108"}';;
+                         print "total  :", F+L+B, "/ 108";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
   "acc-large" ) qstat -a \
-            | gawk 'BEGIN {F=0; B=0; L=0}
+            | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F72acc/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
@@ -98,12 +110,15 @@ case "$1" in
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 !~ /R/ && $3 ~ /72acc/ {Wnode += $6; Wjob += 1}
                     END {print "F72acc :", F;
                          print "L72acc :", L;
                          print "B72acc :", B;
-                         print "total  :", F+L+B, "/ 144"}';;
+                         print "total  :", F+L+B, "/ 144";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
   "fat" ) qstat -a \
-            | gawk 'BEGIN {F=0; B=0; L=0}
+            | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F2fat/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
@@ -116,9 +131,12 @@ case "$1" in
                              cmd="username "$2; cmd | getline name; close(cmd);
                              split($1,a,/\./); jobid = a[1];
                              printf "%s L %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 !~ /R/ && $3 ~ /2fat/ {Wnode += $6; Wjob += 1}
                     END {print "F2fat :", F;
                          print "L2fat :", L;
                          print "B2fat :", B;
-                         print "total  :", F+L+B, "/ 17"}';;
+                         print "total  :", F+L+B, "/ 17";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
   * ) echo $usage; exit -1;;
 esac
