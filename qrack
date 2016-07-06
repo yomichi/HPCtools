@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+
+import subprocess as sp
+
+racks = {
+        'r1' : [['x']*36 for i in range(8)],
+        'r2' : [['x']*36 for i in range(8)],
+        'r3' : [['x']*36 for i in range(8)],
+        'r4' : [['x']*36 for i in range(8)],
+        'r5' : [['x']*18 for i in range(8)],
+        'r6' : [['x']*18 for i in range(8)],
+        'r7' : [['x']*36 for i in range(8)],
+        'r8' : [['x']*36 for i in range(4)],
+        'uv' : [['x']*20],
+        }
+nnodes = {
+        'r1' : 288,
+        'r2' : 288,
+        'r3' : 288,
+        'r4' : 288,
+        'r5' : 144,
+        'r6' : 144,
+        'r7' : 288,
+        'r8' : 144,
+        'uv' : 19,
+        }
+descriptions = {
+        'r1' : '4cpu + icpu',
+        'r2' : '36cpu',
+        'r3' : '144cpu',
+        'r4' : '144cpu',
+        'r5' : '18acc + iacc',
+        'r6' : '72acc',
+        'r7' : '144cpu',
+        'r8' : '144cpu',
+        'uv' : 'fat',
+        }
+
+irs = ['r1','r2','r3','r4','r7','r8','r5','r6','uv']
+inodes = { r : 0 for r in irs}
+
+def print_rack(r):
+    print('{} ({}) : {}/{}'.format(r, descriptions[r], inodes[r], nnodes[r]))
+    for b in racks[r]:
+        print(''.join(b))
+    print('')
+
+def proc(s):
+    ss = s.split()
+    q = ss[0][0]
+    ss = ss[1].split('+')
+    r = ss[0][0:2]
+    inodes[r] += len(ss)
+    if r == 'uv':
+        for sss in ss:
+            node = int(sss[2:4])
+            racks[r][0][node] = q
+    else:
+        for sss in ss:
+            ir = int(sss[3])
+            node = int(sss.split('/')[0][5:])
+            racks[r][ir][node] = q
+
+cmd1 = ['qstat', '-an1']
+cmd2 = ['awk', '$10 ~ /R/ {print $3,$12}']
+p1 = sp.Popen(cmd1, stdout=sp.PIPE)
+p2 = sp.Popen(cmd2, stdin=p1.stdout, stdout=sp.PIPE)
+p1.stdout.close()
+output = p2.communicate()[0]
+output = output.split('\n')
+
+for s in output:
+    ss = s.strip()
+    if not bool(ss):
+        continue
+    proc(ss)
+
+for r in irs:
+    print_rack(r)
+
