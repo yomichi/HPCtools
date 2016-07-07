@@ -1,17 +1,40 @@
 #!/usr/bin/env python
 
+import sys
 import subprocess as sp
 
+que = 'all' if len(sys.argv) == 1 else sys.argv[1]
+if que == 'all':
+    exq = ''
+elif que == 'small':
+    exq = '&& $12 ~ /r1/'
+elif que == 'middle':
+    exq = '&& $12 ~ /r2/'
+elif que == 'large':
+    exq = '&& $12 ~ /r[3478]/'
+elif que == 'acc-middle':
+    exq = '&& $12 ~ /r5/'
+elif que == 'acc-large':
+    exq = '&& $12 ~ /r6/'
+elif que == 'fat':
+    exq = '&& $12 ~ /uv/'
+else:
+    print('usage: qrack <queue>')
+    print('')
+    print('       queue=(small|middle|large|acc-middle|acc-large|fat|all) ')
+    print('             default : all')
+    sys.exit()
+
 racks = {
-        'r1' : [['x']*36 for i in range(8)],
-        'r2' : [['x']*36 for i in range(8)],
-        'r3' : [['x']*36 for i in range(8)],
-        'r4' : [['x']*36 for i in range(8)],
-        'r5' : [['x']*18 for i in range(8)],
-        'r6' : [['x']*18 for i in range(8)],
-        'r7' : [['x']*36 for i in range(8)],
-        'r8' : [['x']*36 for i in range(4)],
-        'uv' : [['x']*20],
+        'r1' : [['_']*36 for i in range(8)],
+        'r2' : [['_']*36 for i in range(8)],
+        'r3' : [['_']*36 for i in range(8)],
+        'r4' : [['_']*36 for i in range(8)],
+        'r5' : [['_']*18 for i in range(8)],
+        'r6' : [['_']*18 for i in range(8)],
+        'r7' : [['_']*36 for i in range(8)],
+        'r8' : [['_']*36 for i in range(4)],
+        'uv' : [['_']*20],
         }
 nnodes = {
         'r1' : 288,
@@ -39,6 +62,15 @@ descriptions = {
 irs = ['r1','r2','r3','r4','r7','r8','r5','r6','uv']
 inodes = { r : 0 for r in irs}
 
+chars = {
+    'F' : 'abcdefghijklmnopqrstuvwxyz',
+    'L' : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+    'B' : '0123456789!&@?#$:+-*/%',
+    'i' : 'abcdefghijklmnopqrstuvwxyz',
+    }
+ichars = { q : 0 for q in ['F', 'L', 'B', 'i']}
+nchars = { q : len(chars[q]) for q in ['F', 'L', 'B', 'i']}
+
 def print_rack(r):
     print('{} ({}) : {}/{}'.format(r, descriptions[r], inodes[r], nnodes[r]))
     for b in racks[r]:
@@ -48,21 +80,23 @@ def print_rack(r):
 def proc(s):
     ss = s.split()
     q = ss[0][0]
+    c = chars[q][ichars[q]]
+    ichars[q] = (ichars[q] + 1)%nchars[q]
     ss = ss[1].split('+')
     r = ss[0][0:2]
     inodes[r] += len(ss)
     if r == 'uv':
         for sss in ss:
             node = int(sss[2:4])
-            racks[r][0][node] = q
+            racks[r][0][node] = c
     else:
         for sss in ss:
             ir = int(sss[3])
             node = int(sss.split('/')[0][5:])
-            racks[r][ir][node] = q
+            racks[r][ir][node] = c
 
 cmd1 = ['qstat', '-an1']
-cmd2 = ['awk', '$10 ~ /R/ {print $3,$12}']
+cmd2 = ['awk', '$10 ~ /R/ {} {}'.format(exq,'{print $3,$12}')]
 p1 = sp.Popen(cmd1, stdout=sp.PIPE)
 p2 = sp.Popen(cmd2, stdin=p1.stdout, stdout=sp.PIPE)
 p1.stdout.close()
@@ -75,6 +109,20 @@ for s in output:
         continue
     proc(ss)
 
-for r in irs:
-    print_rack(r)
+if que == 'small':
+    print_rack('r1')
+elif que == 'middle':
+    print_rack('r2')
+elif que == 'large':
+    for r in ['r3', 'r4', 'r7', 'r8']:
+        print_rack(r)
+elif que == 'acc-middle':
+    print_rack('r5')
+elif que == 'acc-large':
+    print_rack('r6')
+elif que == 'fat':
+    print_rack('uv')
+else:
+    for r in irs:
+        print_rack(r)
 
