@@ -4,6 +4,8 @@
 ## Copyright (c) Yuichi Motoyama <yomichi@tsg.jp>
 ## Distributed under the Boost Software License Version 1.0.
 
+set -ue
+
 usage="usage: `basename $0` (small|middle|large|acc-middle|acc-large|fat)"
 
 if [ $# -ne 1 ]; then
@@ -12,7 +14,7 @@ if [ $# -ne 1 ]; then
 fi
 
 case "$1" in
-  "small" ) qstat -a \
+  "small" ) qstat -a F4cpu B4cpu L4cpu \
             | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob=0}
   $10 ~ /R/ && $3 ~ /F4cpu/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
@@ -33,7 +35,7 @@ case "$1" in
                          print "total   :", F+L+B, "/ 216";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
-  "middle" ) qstat -a \
+  "middle" ) qstat -a F36cpu B36cpu L36cpu \
             | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob=0}
   $10 ~ /R/ && $3 ~ /F36cpu/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
@@ -54,7 +56,7 @@ case "$1" in
                          print "total  :", F+L+B, "/ 288";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
-  "large" ) qstat -a \
+  "large" ) qstat -a F144cpu B144cpu L144cpu \
             | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F144cpu/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
@@ -75,7 +77,7 @@ case "$1" in
                          print "total   :", F+L+B, "/ 1008";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
-  "acc-middle" ) qstat -a \
+  "acc-middle" ) qstat -a F18acc B18acc L18acc \
             | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F18acc/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
@@ -96,7 +98,7 @@ case "$1" in
                          print "total  :", F+L+B, "/ 108";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
-  "acc-large" ) qstat -a \
+  "acc-large" ) qstat -a F72acc B72acc L72acc \
             | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F72acc/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
@@ -117,7 +119,7 @@ case "$1" in
                          print "total  :", F+L+B, "/ 144";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
-  "fat" ) qstat -a \
+  "fat" ) qstat -a F2fat B2fat L2fat \
             | gawk 'BEGIN {F=0; B=0; L=0; Wnode=0; Wjob = 0;}
   $10 ~ /R/ && $3 ~ /F2fat/ {F += $6;
                              cmd="username "$2; cmd | getline name; close(cmd);
