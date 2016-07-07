@@ -34,7 +34,7 @@ racks = {
         'r6' : [['_']*18 for i in range(8)],
         'r7' : [['_']*36 for i in range(8)],
         'r8' : [['_']*36 for i in range(4)],
-        'uv' : [['_']*20],
+        'uv' : [['_']*19],
         }
 nnodes = {
         'r1' : 288,
@@ -72,9 +72,11 @@ ichars = { q : 0 for q in ['F', 'L', 'B', 'i']}
 nchars = { q : len(chars[q]) for q in ['F', 'L', 'B', 'i']}
 
 def print_rack(r):
-    print('{} ({}) : {}/{}'.format(r, descriptions[r], inodes[r], nnodes[r]))
+    print('{} ({}) : {}/{}/{} (occupied/empty/total)'.format(r, descriptions[r], inodes[r], nnodes[r]-inodes[r], nnodes[r]))
     for b in racks[r]:
-        print(''.join(b))
+        nnot = b.count('_')
+        nblade = len(b)
+        print('{} {}/{}/{}'.format(''.join(b), nblade-nnot, nnot, nblade))
     print('')
 
 def proc(s):
@@ -88,7 +90,7 @@ def proc(s):
     if r == 'uv':
         for sss in ss:
             node = int(sss[2:4])
-            racks[r][0][node] = c
+            racks[r][0][node-1] = c
     else:
         for sss in ss:
             ir = int(sss[3])
