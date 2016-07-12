@@ -2,6 +2,8 @@
 
 物性研共同利用スパコンシステムB (sekirei) のためのツールです。
 
+# ログインノードで使うスクリプト
+
 ## `qnodes`
 現在動いているジョブの一覧およびキューごとの使用中ノードの数を、
 通常キュー(F)、長時間キュー(L)、バックグラウンドキュー(L) の区別なく表示します。
@@ -42,15 +44,17 @@ usage: qchain [--ok] [--notok] [--num=<number of chain>] <scriptname>
 与えたジョブスクリプト `<scriptname>` を、与えた回数 `<number of chain>` だけ繰り返すチェーンジョブを投入します。
 デフォルトでは `afterany` でつながりますが、 `--ok` や `--notok` を指定することで `afterok` および `afternotok` でつなげることができます。
 
+## `touch.sh`
+ユーザの `/work` 領域にある全てのファイルのうち、最終更新が1週間以上前のファイルのタイムスタンプを更新します。
+
+# 計算ノードで使うスクリプト
+
 ## `jobid`
 ジョブID を返します。
 
 ## `machinefile`
 割り当てられたノード名を列記します。
 引数として `julia` を渡すと、julia の`--machinefile` フォーマットで表示します。
-
-## `touch.sh`
-ユーザの `/work` 領域にある全てのファイルのうち、最終更新が1週間以上前のファイルのタイムスタンプを更新します。
 
 ## `parallel.jl`
 ジョブスケジューリングを行います。
@@ -75,7 +79,7 @@ usage: qchain [--ok] [--notok] [--num=<number of chain>] <scriptname>
 複数ノードを利用しても、ジョブ数が割当コア数よりも多くても機能します。
 現在はシリアルジョブの並列実行のみに対応しています。
 
-## ライセンス
+# ライセンス
 Copyright: Yuichi Motoyama y-motoyama@issp.u-tokyo.ac.jp
 
 `utconv` を除き、[Boost Software License Version 1.0](http://www.boost.org/LICENSE_1_0.txt) の元で公開しています。
