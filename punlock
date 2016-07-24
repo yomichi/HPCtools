@@ -1,0 +1,289 @@
+#! /bin/sh
+
+######################################################################
+#
+# PUNLOCK : A Unlock Command for "pexlock" and "pshlock"
+#
+# Usage   : punlock [options] <lockname> [lockname ...]
+#           -d <lockdir> ...... the directory for lockfiles.
+#                               The lockfile directory will be decided
+#                               as the following rule.
+#                               1) this option "-d" if specified
+#                               2) the environment varriable "PLOCKDIR"
+#                                  if specified
+#                               3) "$(pwd)" (default)
+#           -w <maxwaiting> ... <<for only lockfiles by "pshlock">>
+#                               maximum waiting seconds to succeed locking
+#                               (-1 means waiting infinitely)
+#                               The default value is 10.
+# Return  : ==0 ... one or more unlocking were success
+#           !=0 ... all failure
+#
+# Example : See the header comments of "pexlock" and "pshlock"
+#
+# Notice  : The lockfile is written with rw-rw-rw for sharing.
+#           If you want not to share it with others,
+#           you have to give the lockdir rwxrwx--- or rwx------ permisson.
+#
+# Written by Rich Mikan (richmikan[at]richlab.org) at 2016/01/22
+#
+# This is a public-domain software. It measns that all of the people
+# can use this with no restrictions at all. By the way, I am fed up
+# the side effects which are broght about by the major licenses.
+#
+######################################################################
+
+
+# ===== FUNCTIONS ====================================================
+
+# --- FUNC: print the usage and exit ---------------------------------
+print_usage_and_exit () {
+  cat <<-__USAGE 1>&2
+	Usage   : ${0##*/} [options] <lockname> [lockname ...]
+	          -d <lockdir> ...... the directory for lockfiles.
+	                              The lockfile directory will be decided
+	                              as the following rule.
+	                              1) this option "-d" if specified
+	                              2) the environment varriable "PLOCKDIR"
+	                                 if specified
+	                              3) "$(pwd)" (default)
+	          -w <maxwaiting> ... <<for only lockfiles by "pshlock">>
+	                              maximum waiting seconds to succeed locking
+	                              (-1 means waiting infinitely)
+	                              The default value is 10.
+	Version : Fri Jan 22 19:00:54 JST 2016
+__USAGE
+  exit 1
+}
+
+# --- FUNC: exit-trap ------------------------------------------------
+# arg   : [return code]
+# ret   : (not return)
+exit_trap () {
+  trap EXIT HUP INT QUIT PIPE ALRM TERM
+  rm -rf "${File_modlk:-}" >/dev/null 2>&1
+  case $# in 0) exit $?;; *) exit ${1:-0};; esac
+}
+
+
+
+# ===== PREPARATION ==================================================
+
+# --- initialize -----------------------------------------------------
+set -u
+PATH='/usr/bin:/bin'
+IFS=$(printf ' \t\n_'); IFS=${IFS%_}
+export IFS LC_ALL=C LANG=C PATH
+umask 0000
+
+# --- parse the arguments --------------------------------------------
+dopt=''
+max_waiting_secs=10
+max_lifetime_secs=''
+ppid=$(ps -Ao pid,ppid | awk '$1=='"$$"'{print $2;exit}')
+optmode=''
+while [ $# -gt 0 ]; do
+  case "$optmode" in
+    '') case "$1" in
+          --)      shift
+                   break
+                   ;;
+          -[hv]|--help|--version)
+                   print_usage_and_exit
+                   ;;
+          -[dwl]*) ret=$(printf '%s\n' "${1#-}"                              |
+                         awk '{opt     = substr($0,1,1);                     #
+                               opt_str = (length($0)>1) ? substr($0,2) : ""; #
+                               printf("%s %s", opt, opt_str);              }')
+                   ret1=${ret%% *}
+                   ret2=${ret#* }
+                   case "$ret1$ret2" in
+                     d)  optmode='d'             ;;
+                     d*) dopt=$ret2              ;;
+                     w)  optmode='w'             ;;
+                     w*) max_waiting_secs=$ret2  ;;
+                     l)  optmode='l'             ;;
+                     l*) max_lifetime_secs=$ret2 ;;
+                   esac
+                   ;;
+          -*)      print_usage_and_exit
+                   ;;
+          *)       break
+                   ;;
+        esac
+        ;;
+    d)  dopt=$1
+        optmode=''
+        ;;
+    w)  max_waiting_secs=$1
+        optmode=''
+        ;;
+    l)  max_lifetime_secs=$1
+        optmode=''
+        ;;
+  esac
+  shift
+done
+case $# in 0) print_usage_and_exit;; esac
+echo "_$max_waiting_secs"   | grep -Eq '^_-?[0-9]+$' || {
+  printf '%s: Maximum waiting seconds parameter is invalid\n' "${0##*/}" 1>&2
+  exit 1
+}
+case "$max_lifetime_secs" in
+  '') :                                                                       ;;
+   *) printf '%s: option "-l" could not use in this command\n' "${0##*/}" 1>&2;;
+esac
+Dir_lock=''
+while :; do
+  case "$dopt"         in '') :;; *) Dir_lock="${dopt%/}/"
+                                     break                             ;; esac
+  case "${PLOCKDIR:-}" in '') :;; *) Dir_lock="${PLOCKDIR%/}/"
+                                     break                             ;; esac
+  case 'default'       in         *) Dir_lock=$(pwd)
+                                     Dir_lock=${Dir_lock%/}
+                                     break                             ;; esac
+done
+case $? in
+  [!0]*) echo "${0##*/}: Failed to make the lockfile directory" 1>&2;exit 1;;
+esac
+[ \( -z "$dopt" \) -o \( -d "$dopt" \) ] || {
+  echo "${0##*/}: \"$Dir_lock\": No such directory or permission denied" 1>&2
+  exit 1
+}
+case "$Dir_lock" in [!/]*) s=$(pwd);Dir_lock="${s%/}/$Dir_lock";; esac
+
+
+
+# ===== MAIN =========================================================
+
+Dir_home=$(pwd);Dir_home=${Dir_home%/}
+trap 'exit_trap' EXIT HUP INT QUIT PIPE ALRM TERM
+count_all=0
+count_success=0
+for lockname in "$@"; do
+  count_all=$((count_all+1))
+
+  # --- Validate the lockname  ---------------------------------------
+  # 0) trim "/" at the end of argument
+  lockname=${lockname%/}
+  # 1) if the argument is as a sh-lock, separate lock-id from the argument
+  sublockname=''
+  echo "_$lockname" | grep -Eq '^_.+/[0-9]{14}\.[0-9]+\.[0-9]+$' && {
+    sublockname=${lockname##*/}
+    lockname=${lockname%/*}
+  }
+  # 2) make the argument an absolute filepath and separate it into the
+  #    directory path and the lockname
+  case "$lockname" in
+      '/'*) :                                        ;;    # as a path
+     './'*) lockname="${Dir_home%}/${lockname#./}"   ;;    # as a path
+    '../'*) lockname="${Dir_home%/*}/${lockname#../}";;    # as a path
+       */*) lockname="${Dir_home%}/$lockname"        ;;    # as a path
+         *) case "$sublockname" in
+              '') lockname="$Dir_lock$lockname"          ;; # just a ex-lockname
+               *) lockname="$Dir_lock$lockname/$lockname";; # just a sh-lockname
+            esac
+            ;;
+  esac
+  Dir_path="${lockname%/*}/"
+  lockname="${lockname##*/}"
+  # 3) skip if the argument is a sh-lock without sublock-id
+  [ \( -d "$Dir_path$lockname" \) -a \( -z "$sublockname" \) ] && {
+    printf '%s: "%s": It is a sh-lockfile, but without sublock-id\n' \
+           "${0##*/}" "$lockname" 1>&2
+    continue
+  }
+  # 4) skip if the argument is one of some reserve names
+  case "$lockname" in
+    '.border_date_and_time.tmp')
+      printf '%s: ".border_date_and_time.tmp" is reserved, skip\n' "${0##*/}" \
+             1>&2
+      continue
+      ;;
+  esac
+  printf '%s\n' "$lockname"                              |
+  grep -Eq '^\.preshlock\.[0-9]{14}\.[0-9]+\.[0-9]+$' && {
+    echo "${0##*/}: \"$lockname\": '/' is reserved, skip" 1>&2
+    continue
+  }
+
+  # --- Try to unlock as a exclusive-lock ----------------------------
+  rm "$Dir_path$lockname" 2>/dev/null && {
+    count_success=$((count_success+1))
+    continue
+  }
+
+  # --- If failed, then try to unlock as a shared-lock ---------------
+  # 0) already unlocked?
+  [ -d "$Dir_path$lockname" ] || {
+    count_success=$((count_success+1))
+    continue
+  }
+  # 1) trying loop
+  if [ $max_waiting_secs -ge 0 ]; then
+    try=$((max_waiting_secs+1))
+  else
+    try=1
+  fi
+  while [ $try -gt 0 ]; do
+    # 1-2) try to create the accesing right token file "modifying"
+    File_modlk="${Dir_path}$lockname/modifying"
+    (set -C; echo $ppid > "$File_modlk") 2>/dev/null || {
+      File_modlk=''                                   # retry  if already exists
+      [ $max_waiting_secs -ge 0 ] && try=$((try-1))
+      case $try in 0) :;; *) sleep 1;; esac
+      continue
+    }
+    # 1-3) remove the sublock-id directory
+    [ -d "${Dir_path}$lockname/$sublockname" ] && {
+      rmdir "${Dir_path}$lockname/$sublockname" || {
+        try=-1                                        # exit loop abnormally
+        rm -f "$File_modlk" 2>/dev/null
+        File_modlk=''
+        break
+      }
+    }
+    # 1-5) if the current number of the locking processes is 0,
+    #      remove the sh-lock directory
+    n=$(ls -ld "${Dir_path}$lockname" 2>/dev/null |
+        awk '{n=$2-2;print (n>=0)?n:0;}'          )
+    case $n in
+      0) rm -rf "${Dir_path%/*}"
+         File_modlk=''
+         break
+         ;;
+    esac
+    # 1-6) finish the loop successfully
+    rm -f "${Dir_path}$lockname/modifying" 2>/dev/null
+    File_modlk=''
+    break
+  done
+  # 2) $try > 0 : success and print the path of the generated lockfile
+  #         ==0 : now fully locked
+  #         < 0 : abnormally exit
+  #    otherwise, it means some error happened
+  case $try in
+    [1-9]*) :
+            ;;
+         0) printf '%s: "%s": timeout, try again later\n' \
+                   "${0##*/}" "$lockname" 1>&2
+            ;;
+        -1) printf '%s: "%s": timeout, the lock-dir is broken!\n' \
+                   "${0##*/}" "$lockname" 1>&2
+            ;;
+        -*) printf '%s: "%s": unexpedter error!\n' "${0##*/}" "$lockname" 1>&2
+            ;;
+  esac
+
+  count_success=$((count_success+1))
+done
+
+
+
+# ===== FINISH =======================================================
+
+# --- Return 1 if all locking failed ---------------------------------
+case "$count_success:$count_all" in
+  0:[!0]*) exit 1;;
+        *) exit 0;;
+esac
