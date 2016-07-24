@@ -6,7 +6,7 @@
 
 set -ue
 
-usage="usage: `basename $0` (small|middle|large|acc-middle|acc-large|fat)"
+usage="usage: `basename $0` (small|middle|large|acc-middle|acc-large|fat|int)"
 
 if [ $# -ne 1 ]; then
   echo $usage
@@ -138,6 +138,26 @@ case "$1" in
                          print "L2fat :", L;
                          print "B2fat :", B;
                          print "total  :", F+L+B, "/ 17";
+                         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+                     }';;
+  "int" ) qstat -a i18cpu i9acc i1fat \
+            | gawk 'BEGIN {C=0; A=0; F=0; Wnode=0; Wjob = 0;}
+  $10 ~ /R/ && $3 ~ /i18cpu/ {C += $6;
+                             cmd="username "$2; cmd | getline name; close(cmd);
+                             split($1,a,/\./); jobid = a[1];
+                             printf "%s cpu %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 ~ /R/ && $3 ~ /i9acc/ {A += $6;
+                             cmd="username "$2; cmd | getline name; close(cmd);
+                             split($1,a,/\./); jobid = a[1];
+                             printf "%s acc %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 ~ /R/ && $3 ~ /i1fat/ {F += $6;
+                             cmd="username "$2; cmd | getline name; close(cmd);
+                             split($1,a,/\./); jobid = a[1];
+                             printf "%s fat %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+  $10 !~ /R/ {Wnode += $6; Wjob += 1}
+                    END {print "i18cpu :", C, "/ 72";
+                         print "i9acc :", A, "/ 36";
+                         print "i1fat :", F, "/ 2";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
   * ) echo $usage; exit -1;;
