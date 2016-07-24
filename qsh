@@ -56,5 +56,5 @@ esac
 if [ "$dryrun" == "1" ]; then
     echo "qsub -queue $queue -node $nnodes -mpi $nprocs -omp $nthreads -I"
 else
-    qsub -queue $queue -node $nnodes -mpi $nprocs -omp $nthreads -I
+    /opt/pbs/issp/bin/qsub -queue $queue -node $nnodes -mpi $nprocs -omp $nthreads -I
 fi
