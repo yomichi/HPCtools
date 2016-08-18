@@ -1,0 +1,106 @@
+#!/bin/sh
+set -u
+
+usage="usage: $(basename $(readlink -f $0)) [--queue=(cpu|acc|fat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--name=JOB_NAME]"
+
+nnodes=1
+nprocs=1
+nthreads=24
+queue="cpu"
+jobname="test"
+
+for arg in $@; do
+    check_omp=""
+    check_omp=${arg#--omp=}
+    check_queue=""
+    check_queue=${arg#--queue=}
+    check_node=""
+    check_node=${arg#--node=}
+    check_name=""
+    check_name=${arg#--name=}
+    if [ "$check_omp" != "$arg" ]; then
+        if [ "_`echo $check_omp | grep -E '^[0-9]+$'`" == "_" ]; then
+            echo $usage
+            exit 127
+        fi
+        nthreads=$check_omp
+    elif [ "$check_queue" != "$arg" ]; then
+        if [ "_`echo $check_queue | grep -E '(cpu|acc|fat)'`" == "_" ]; then
+            echo $usage
+            exit 127
+        fi
+        queue=$check_queue
+    elif [ "$check_node" != "$arg" ]; then
+        if [ "_`echo $check_node | grep -E '^[0-9]+$'`" == "_" ]; then
+            echo $usage
+            exit 127
+        fi
+        nnodes=$check_node
+    elif [ "$check_name" != "$arg" ]; then
+        jobname=$check_name
+    fi
+done
+
+case $nthreads in
+    1  ) nprocs=`echo 24 \* $nnodes | bc -l` ;;
+    2  ) nprocs=`echo 12 \* $nnodes | bc -l` ;;
+    3  ) nprocs=`echo 8 \* $nnodes | bc -l` ;;
+    4  ) nprocs=`echo 6 \* $nnodes | bc -l` ;;
+    6  ) nprocs=`echo 4 \* $nnodes | bc -l` ;;
+    8  ) nprocs=`echo 3 \* $nnodes | bc -l` ;;
+    12 ) nprocs=`echo 2 \* $nnodes | bc -l` ;;
+    24 ) nprocs=`echo 1 \* $nnodes | bc -l` ;;
+    *  ) echo "Invalid input: --omp=<NUM_OPENMP> should be divisor of 24."; exit 127;; 
+esac
+
+case $queue in
+    "cpu" )
+        if [ $nnodes -le 4 ]; then
+            queue=F4cpu
+        elif [ $nnodes -le 36 ]; then
+            queue=F36cpu
+        else
+            queue=F144cpu
+        fi;;
+    "acc" )
+        if [ $nnodes -le 18 ]; then
+            queue=F18acc
+        else
+            queue=F72acc
+        fi;;
+    "fat" )
+        queue=F2fat;;
+    *)
+        exit 127;;
+esac
+
+prof=".${SHELL##*/}rc"
+
+cat << END
+#!${SHELL}
+#QSUB -queue $queue
+#QSUB -node $nnodes
+#QSUB -omp $nthreads
+#QSUB -mpi $nprocs
+#QSUB -place pack
+#QSUB -over false
+#PBS -l walltime=24:00:00
+#PBS -N $jobname
+#PBS -o /dev/null
+#PBS -e /dev/null
+
+cd \${PBS_O_WORKDIR}
+. /etc/profile.d/modules.sh
+module load intel mpt
+
+. \${HOME}/${prof}
+
+jid=\`jobid\`
+
+cout="std.out.\$jid"
+cerr="std.err.\$jid"
+
+prog=""
+
+mpijob \$prog > \$cout 2> \$cerr
+END
