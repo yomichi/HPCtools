@@ -15,20 +15,20 @@ for arg in $@; do
     if [ "$check_omp" != "$arg" ]; then
         if [ "_`echo $check_omp | grep -E '^[0-9]+$'`" == "_" ]; then
             echo $usage
-            exit 127
+            exit 64
         fi
         nthreads=$check_omp
     elif [ "$check_queue" != "$arg" ]; then
         if [ "_`echo $check_queue | grep -E '(cpu|acc|fat)'`" == "_" ]; then
             echo $usage
-            exit 127
+            exit 64
         fi
         queue=$check_queue
     elif [ "$arg" == "--dry" ]; then
         dryrun=1
     elif [ "_`echo $arg | grep -E '^[0-9]+$'`" == "_" ]; then
         echo $usage
-        exit 127
+        exit 64
     else
         nnodes=$arg
     fi
@@ -43,14 +43,14 @@ case $nthreads in
     8  ) nprocs=`echo 3 \* $nnodes | bc -l` ;;
     12 ) nprocs=`echo 2 \* $nnodes | bc -l` ;;
     24 ) nprocs=`echo 1 \* $nnodes | bc -l` ;;
-    *  ) echo "Invalid input: --omp=<NUM_OPENMP> should be divisor of 24."; exit 127;; 
+    *  ) echo "Invalid input: --omp=<NUM_OPENMP> should be divisor of 24."; exit 64;; 
 esac
 
 case $queue in
     "cpu" ) queue=i18cpu;;
     "acc" ) queue=i9acc;;
     "fat" ) queue=i1fat;;
-    *) exit 127;;
+    *) echo $usage && exit 64;;
 esac
 
 if [ "$dryrun" == "1" ]; then

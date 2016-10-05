@@ -2,7 +2,7 @@
 
 if [ $# == 0 ]; then
   echo "usage: username <user-id>"
-  exit 127
+  exit 64
 fi
 
 userid="$1"

@@ -3,7 +3,7 @@ usage="usage: $(basename $(readlink -f $0)) [--ok] [--notok] [--num=<number of c
 
 if [ $# -lt 1 ] ;then
     echo $usage
-    exit 127
+    exit 64
 fi
 
 sname=""
@@ -16,7 +16,7 @@ for arg in $@; do
     if [ "$check_num" != "$arg" ]; then
         if [ -z "`echo $check_num | grep -E '^[0-9]+$'`" ]; then
             echo $usage
-            exit 127
+            exit 64
         fi
         nchain=$check_num
     elif [ "$arg" == "--ok" ]; then
@@ -31,12 +31,12 @@ done
 
 if [ ! -f $sname ]; then
     echo "$sname does not exist"
-    exit 127
+    exit 64
 fi
 
 if [ ! $nchain -gt 1 ] ; then
     echo "<number of chain> should be greater than 1"
-    exit 127
+    exit 64
 fi
 
 jobid=`qsub $sname | cut -d '.' -f 1,1`
