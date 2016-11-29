@@ -71,15 +71,15 @@ case "$1" in
   $10 !~ /R/ && $3 ~ /L36cpu/ {WL += $6; WLj += 1}
                     END {print ""
                          print "running :";
-                         print "F36cpu   :", F, "nodes /", Fj, "jobs";
-                         print "L36cpu   :", L, "nodes /", Lj, "jobs";
-                         print "B36cpu   :", B, "nodes /", Bj, "jobs";
+                         print "F36cpu  :", F, "nodes /", Fj, "jobs";
+                         print "L36cpu  :", L, "nodes /", Lj, "jobs";
+                         print "B36cpu  :", B, "nodes /", Bj, "jobs";
                          print "total   :", F+L+B, "/ 288 nodes";
                          print ""
                          print "waiting :";
-                         print "F36cpu   :", WF, "nodes /", WFj, "jobs";
-                         print "L36cpu   :", WL, "nodes /", WLj, "jobs";
-                         print "B36cpu   :", WB, "nodes /", WBj, "jobs";
+                         print "F36cpu  :", WF, "nodes /", WFj, "jobs";
+                         print "L36cpu  :", WL, "nodes /", WLj, "jobs";
+                         print "B36cpu  :", WB, "nodes /", WBj, "jobs";
                          print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
                      }';;
   "large" ) qstat -a F144cpu B144cpu L144cpu \
@@ -105,15 +105,15 @@ case "$1" in
   $10 !~ /R/ && $3 ~ /L144cpu/ {WL += $6; WLj += 1}
                     END {print ""
                          print "running :";
-                         print "F144cpu   :", F, "nodes /", Fj, "jobs";
-                         print "L144cpu   :", L, "nodes /", Lj, "jobs";
-                         print "B144cpu   :", B, "nodes /", Bj, "jobs";
+                         print "F144cpu :", F, "nodes /", Fj, "jobs";
+                         print "L144cpu :", L, "nodes /", Lj, "jobs";
+                         print "B144cpu :", B, "nodes /", Bj, "jobs";
                          print "total   :", F+L+B, "/ 1008 nodes";
                          print ""
                          print "waiting :";
-                         print "F144cpu   :", WF, "nodes /", WFj, "jobs";
-                         print "L144cpu   :", WL, "nodes /", WLj, "jobs";
-                         print "B144cpu   :", WB, "nodes /", WBj, "jobs";
+                         print "F144cpu :", WF, "nodes /", WFj, "jobs";
+                         print "L144cpu :", WL, "nodes /", WLj, "jobs";
+                         print "B144cpu :", WB, "nodes /", WBj, "jobs";
                          print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
                      }';;
   "acc-middle" ) qstat -a F18acc B18acc L18acc \
@@ -139,15 +139,15 @@ case "$1" in
   $10 !~ /R/ && $3 ~ /L18acc/ {WL += $6; WLj += 1}
                     END {print ""
                          print "running :";
-                         print "F18acc   :", F, "nodes /", Fj, "jobs";
-                         print "L18acc   :", L, "nodes /", Lj, "jobs";
-                         print "B18acc   :", B, "nodes /", Bj, "jobs";
+                         print "F18acc  :", F, "nodes /", Fj, "jobs";
+                         print "L18acc  :", L, "nodes /", Lj, "jobs";
+                         print "B18acc  :", B, "nodes /", Bj, "jobs";
                          print "total   :", F+L+B, "/ 108 nodes";
                          print ""
                          print "waiting :";
-                         print "F18acc   :", WF, "nodes /", WFj, "jobs";
-                         print "L18acc   :", WL, "nodes /", WLj, "jobs";
-                         print "B18acc   :", WB, "nodes /", WBj, "jobs";
+                         print "F18acc  :", WF, "nodes /", WFj, "jobs";
+                         print "L18acc  :", WL, "nodes /", WLj, "jobs";
+                         print "B18acc  :", WB, "nodes /", WBj, "jobs";
                          print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
                      }';;
   "acc-large" ) qstat -a F72acc B72acc L72acc \
@@ -173,13 +173,13 @@ case "$1" in
   $10 !~ /R/ && $3 ~ /L72acc/ {WL += $6; WLj += 1}
                     END {print ""
                          print "running :";
-                         print "F72acc   :", F, "nodes /", Fj, "jobs";
-                         print "B72acc   :", B, "nodes /", Bj, "jobs";
+                         print "F72acc  :", F, "nodes /", Fj, "jobs";
+                         print "B72acc  :", B, "nodes /", Bj, "jobs";
                          print "total   :", F+L+B, "/ 144 nodes";
                          print ""
                          print "waiting :";
-                         print "F72acc   :", WF, "nodes /", WFj, "jobs";
-                         print "B72acc   :", WB, "nodes /", WBj, "jobs";
+                         print "F72acc  :", WF, "nodes /", WFj, "jobs";
+                         print "B72acc  :", WB, "nodes /", WBj, "jobs";
                          print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
                      }';;
   "fat" ) qstat -a F2fat B2fat L2fat \
@@ -231,9 +231,9 @@ case "$1" in
                              split($1,a,/\./); jobid = a[1];
                              printf "%s fat %10s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
   $10 !~ /R/ {Wnode += $6; Wjob += 1}
-                    END {print "i18cpu :", C, "/ 72";
-                         print "i9acc :", A, "/ 36";
-                         print "i1fat :", F, "/ 2";
+                    END {print "i18cpu  :", C, "/ 72";
+                         print "i9acc   :", A, "/ 36";
+                         print "i1fat   :", F, "/ 2";
                          print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
                      }';;
   * ) echo $usage; exit -1;;
