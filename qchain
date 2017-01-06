@@ -39,12 +39,12 @@ if [ ! $nchain -gt 1 ] ; then
     exit 64
 fi
 
-jobid=`qsub $sname | cut -d '.' -f 1,1`
+jobid=$(lqsub $sname | gawk '$1~/JobID/ {print $3}')
 
 cname=`mktemp qchain_XXXXXX.sh`
 
 for i in `seq 2 $nchain` ; do
     awk --assign job=$jobid --assign after=$after 'NR==2 {print "#PBS -W depend="after":"job} {print}' $sname > $cname
-    jobid=`qsub $cname | cut -d '.' -f 1,1`
+    jobid=$(lqsub $cname | gawk '$1~/JobID/ {print $3}')
     rm -f $cname
 done
