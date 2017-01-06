@@ -7,6 +7,8 @@ fi
 
 if [ "_$1" == "_julia" ]; then
     sort $PBS_NODEFILE | uniq -c | awk '{print $1,"*",$2}'
+elif [ "_$1" == "_parallel" ]; then
+    sort $PBS_NODEFILE | uniq -c | awk '{print $1 "/" $2}'
 else
     sort $PBS_NODEFILE
 fi

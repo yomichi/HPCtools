@@ -66,6 +66,7 @@ usage: qchain [--ok] [--notok] [--num=<number of chain>] <scriptname>
 ## `machinefile`
 割り当てられたノード名を列記します。
 引数として `julia` を渡すと、julia の`--machinefile` フォーマットで表示します。
+また、引数として `parallel` を渡すと、GNU parallel の`--sshloginfile` フォーマットで表示します。
 
 ## `parallel.jl`
 ジョブスケジューリングを行います。
@@ -89,6 +90,14 @@ usage: qchain [--ok] [--notok] [--num=<number of chain>] <scriptname>
 実行の際には、[Julia](http://julialang.org) インタプリタに実行パスを通す必要があります。
 複数ノードを利用しても、ジョブ数が割当コア数よりも多くても機能します。
 現在はシリアルジョブの並列実行のみに対応しています。
+
+ちゃんとメンテナンスしていないため、GNU parallel を使ったほうが幸せになれるような気がします。
+いつかラッパを書きます。
+
+```
+> machinefile parallel > host.txt
+> parallel --slf host.txt --workdir . --env PATH,LD_LIBRARY_PATH "{}" :::: job.txt
+```
 
 # ライセンス
 Copyright: Yuichi Motoyama y-motoyama@issp.u-tokyo.ac.jp
