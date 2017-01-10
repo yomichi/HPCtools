@@ -1,13 +1,15 @@
 #!/bin/sh
 set -u
 
-usage="usage: $(basename $(readlink -f $0)) [--queue=(cpu|acc|fat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--name=JOB_NAME]"
+usage="usage: $(basename $(readlink -f $0)) [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--hours=HOURS] [--minutes=MINUTES] [--name=JOB_NAME]"
 
 nnodes=1
 nprocs=1
 nthreads=24
 queue="cpu"
 jobname="test"
+hours=24
+minutes=0
 
 for arg in $@; do
     check_omp=""
@@ -16,6 +18,10 @@ for arg in $@; do
     check_queue=${arg#--queue=}
     check_node=""
     check_node=${arg#--node=}
+    check_hours=""
+    check_hours=${arg#--hours=}
+    check_minutes=""
+    check_minutes=${arg#--minutes=}
     check_name=""
     check_name=${arg#--name=}
     if [ "$check_omp" != "$arg" ]; then
@@ -36,6 +42,18 @@ for arg in $@; do
             exit 64
         fi
         nnodes=$check_node
+    elif [ "$check_hours" != "$arg" ]; then
+        if [ "_`echo $check_hours | grep -E '^[0-9]+$'`" == "_" ]; then
+            echo $usage
+            exit 64
+        fi
+        hours=$check_hours
+    elif [ "$check_minutes" != "$arg" ]; then
+        if [ "_`echo $check_minutes | grep -E '^[0-9]+$'`" == "_" ]; then
+            echo $usage
+            exit 64
+        fi
+        minutes=$check_minutes
     elif [ "$check_name" != "$arg" ]; then
         jobname=$check_name
     fi
@@ -70,9 +88,30 @@ case $queue in
         fi;;
     "fat" )
         queue=F2fat;;
+    "icpu" )
+        queue=i18cpu
+        hours=0
+        minutes=30;;
+    "iacc" )
+        queue=i9acc
+        hours=0
+        minutes=30;;
+    "ifat" )
+        queue=i1fat
+        hours=0
+        minutes=30;;
     *)
+        echo $usage
         exit 64;;
 esac
+
+M=$(echo "scale=0; $hours * 60 + $minutes"  | bc -l)
+h=$(echo "scale=0; $M / 60" | bc -l)
+m=$(echo "scale=0; $M % 60" | bc -l)
+
+if [ $M -gt 1440 ] ; then
+  queue="L$(echo $queue | cut -c 2-)"
+fi
 
 prof=".${SHELL##*/}rc"
 
@@ -84,7 +123,7 @@ cat << END
 #QSUB -mpi $nprocs
 #QSUB -place pack
 #QSUB -over false
-#PBS -l walltime=24:00:00
+#PBS -l walltime=$(printf "%02d" $h):$(printf "%02d" $m):00
 #PBS -N $jobname
 #PBS -o /dev/null
 #PBS -e /dev/null
@@ -95,12 +134,9 @@ module load intel mpt
 
 . \${HOME}/${prof}
 
-jid=\`jobid\`
+jid=\$(echo \$PBS_JOBID | cut -d . -f 1,1)
 
 cout="std.out.\$jid"
 cerr="std.err.\$jid"
 
-prog=""
-
-mpijob \$prog > \$cout 2> \$cerr
 END
