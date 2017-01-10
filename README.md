@@ -28,7 +28,7 @@
 
 ## `mkjobsh`
 ``` bash
-usage="usage: mkjobsh [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--hours=HOURS] [--minutes=MINUTES] [--name=JOB_NAME]"
+usage: mkjobsh [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--hours=HOURS] [--minutes=MINUTES] [--name=JOB_NAME]
 ```
 
 ジョブ投入用のスクリプトの雛形を生成し、標準出力に書き出します。
@@ -50,7 +50,7 @@ usage="usage: mkjobsh [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] 
     - 要求時間を指定できます。
     - デフォルトは24時間
     - 24時間を超えた場合は自動的にL キューに切り替えます。
-`--name=<JOB_NAME>`
+- `--name=<JOB_NAME>`
     - ジョブ名を指定できます。
     - デフォルトは "test"
 
