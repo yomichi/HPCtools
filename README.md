@@ -28,14 +28,31 @@
 
 ## `mkjobsh`
 ``` bash
-usage="usage: mkjobsh [--queue=(cpu|acc|fat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--name=JOB_NAME]"
+usage="usage: mkjobsh [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--hours=HOURS] [--minutes=MINUTES] [--name=JOB_NAME]"
 ```
 
 ジョブ投入用のスクリプトの雛形を生成し、標準出力に書き出します。
-`--omp=<NUM_OPENMP>` オプションを使うことで、MPIプロセスあたりのOpenMP スレッド数を指定できます（デフォルト値は24）。指定可能なスレッド数は24 の約数だけです。
-`--node=<NUM_NODE>` オプションを使うことで、使用ノード数を指定できます（デフォルト値は1）。使用するキューも自動で切り替わります。
-`--queue=(cpu|acc|fat)` オプションによって、使うキューを切り替えられます（デフォルトはcpu）
-`--name=<JOB_NAME>` オプションによって、ジョブ名を指定できます。
+
+- `--omp=<NUM_OPENMP>`
+    - MPIプロセスあたりのOpenMP スレッド数を指定できます。
+    - デフォルト値は24
+    - 指定可能なスレッド数は24 の約数だけです。
+- `--node=<NUM_NODE>`
+    - 使用ノード数を指定できます。
+    - デフォルト値は1
+    - 使用するキューも自動で切り替わります。
+- `--queue=(cpu|acc|fat|icpu|iacc|ifat)`
+    - 使うキューを切り替えられます。
+    - デフォルトはcpu
+    - i はインタラクティブキューです。
+        - ジョブ時間は強制的に30分になります。
+- `--hours=HOURS` と `--minutes=MINUTES` 
+    - 要求時間を指定できます。
+    - デフォルトは24時間
+    - 24時間を超えた場合は自動的にL キューに切り替えます。
+`--name=<JOB_NAME>`
+    - ジョブ名を指定できます。
+    - デフォルトは "test"
 
 ## `qsh`
 ``` bash
