@@ -1,6 +1,8 @@
 #!/bin/sh
 set -u
 
+qsub_orig=qsub-orig
+
 if [ $# -eq 0 ]; then
     cat << END
 usage: $(basename $0) [options] [job script]
@@ -39,14 +41,14 @@ trap "${script_dir}/punlock -d $lock_dir $lock_filename" EXIT HUP INT QUIT ABRT 
 
 logfile="$HOME/submitted_jobs.toml"
 
-jid=`/opt/pbs/issp/bin/qsub $@ 2>&1`
+jid=`$qsub_orig $@ 2>&1`
 if [ $? -ne 0 ];then
-    /opt/pbs/issp/bin/qsub $@
+    $qsub_orig $@
     exit 64
 fi
 jid=`echo $jid | cut -d . -f 1,1 | grep -E '^[0-9]{6,}\s*$'`
 if [ -z $jid ]; then
-    /opt/pbs/issp/bin/qsub $@
+    $qsub_orig $@
     exit 64
 fi
 

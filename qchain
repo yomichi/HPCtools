@@ -23,6 +23,9 @@ for arg in $@; do
         after="afterok"
     elif [ "$arg" == "--notok" ]; then
         after="afternotok"
+    elif [ "$arg" == "--help" ]; then
+      echo $usage
+      exit 0
     else
         sname=$arg
     fi
@@ -31,6 +34,7 @@ done
 
 if [ ! -f $sname ]; then
     echo "$sname does not exist"
+    echo $usage
     exit 64
 fi
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 set -u
 
-usage="usage: $(basename $(readlink -f $0)) [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--hours=HOURS] [--minutes=MINUTES] [--name=JOB_NAME]"
+usage="usage: $(basename $(readlink -f $0)) [--queue=(cpu|acc|fat|icpu|iacc|ifat)] [--omp=NUM_OPENMP] [--node=NUM_NODE] [--hours=HOURS] [--minutes=MINUTES] [--name=JOB_NAME] [--fs_factor=fs_factor]"
 
 nnodes=1
 nprocs=1
@@ -10,6 +10,7 @@ queue="cpu"
 jobname="test"
 hours=24
 minutes=0
+fs_factor=0.0
 
 for arg in $@; do
     check_omp=""
@@ -24,6 +25,8 @@ for arg in $@; do
     check_minutes=${arg#--minutes=}
     check_name=""
     check_name=${arg#--name=}
+    check_fs_factor=""
+    check_fs_factor=${arg#--fs_factor=}
     if [ "$check_omp" != "$arg" ]; then
         if [ "_`echo $check_omp | grep -E '^[0-9]+$'`" == "_" ]; then
             echo $usage
@@ -56,6 +59,12 @@ for arg in $@; do
         minutes=$check_minutes
     elif [ "$check_name" != "$arg" ]; then
         jobname=$check_name
+    elif [ "$check_fs_factor" != "$arg" ]; then
+        if [ "_`echo $check_fs_factor | grep -E '^[0-9]+\.?[0-9]+$'`" == "_" ]; then
+            echo $usage
+            exit 64
+        fi
+        fs_factor=$check_fs_factor
     fi
 done
 
@@ -113,6 +122,12 @@ if [ $M -gt 1440 ] ; then
   queue="L$(echo $queue | cut -c 2-)"
 fi
 
+if [ $(echo $fs_factor | gawk '$1 > 0.0 {print 1} $1 <= 0.0 {print 0}') -gt 0 ] ;then
+  fs_factor="#QSUB -fs_factor $fs_factor"
+else
+  fs_factor=""
+fi
+
 prof=".${SHELL##*/}rc"
 
 cat << END
@@ -123,6 +138,7 @@ cat << END
 #QSUB -mpi $nprocs
 #QSUB -place pack
 #QSUB -over false
+$fs_factor
 #PBS -l walltime=$(printf "%02d" $h):$(printf "%02d" $m):00
 #PBS -N $jobname
 #PBS -o /dev/null
