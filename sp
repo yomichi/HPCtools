@@ -10,7 +10,7 @@ fi
 
 for node in "sekirei1" "sekirei2" ;do
     echo "${node}:"
-    ps aux | head -n 1
-    ssh $node ps aux | awk --assign th=$threshold '$1 ~ /([krim][0-9]{6}|ark|sgi)/ && $3 > th {sub(/[ \t\r\n]+$/, "", $0); print}' | sort -nk 3,3
+    ps x o user,pid,ppid,pcpu,pmem,tt,stat,start,atime,args | head -n1
+    ssh $node ps ax o user,pid,ppid,pcpu,pmem,tt,stat,start,atime,args | awk --assign th=$threshold '$1 ~ /([krim][0-9]{6}|ark|sgi)/ && $4 > th {sub(/[ \t\r\n]+$/, "", $0); print}' | sort -nk 4,4
     echo ""
 done
