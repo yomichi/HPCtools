@@ -22,6 +22,6 @@ seven_days_ago=$(echo $now |
                  )
 touch -t $seven_days_ago 7d_ago.tmp
 
-find $WORK \( \! -newer 7d_ago.tmp \) | xargs touch -m
+find $WORK \( \! -newer 7d_ago.tmp \) | xargs touch -m -h
 
 rm -f 7d_ago.tmp
