@@ -8,11 +8,33 @@ set -ue
 
 usage="usage: `basename $0` (small|middle|large|acc-middle|acc-large|fat|int)"
 
-if [ $# -ne 1 ]; then
-  echo $usage
-  exit -1
+if [ $# -eq 0 ]; then
+qstat -a \
+  | gawk 'BEGIN {small=0; middle=0; large=0;
+               accmiddle=0; acclarge=0;
+               fat=0; interactive=0;
+               j_small=0; j_middle=0; j_large=0;
+               j_accmiddle=0; j_acclarge=0;
+               j_fat=0; j_interactive=0}
+        $10 ~ /R/ && $3 ~ /(F|L|B)4cpu/ {small += $6; j_small += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)36cpu/ {middle += $6; j_middle += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)144cpu/ {large += $6; j_large += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)18acc/ {accmiddle += $6; j_accmiddle += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)72acc/ {acclarge += $6; j_acclarge += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)2fat/ {fat += $6; j_fat += 1;}
+        $10 ~ /R/ && $3 ~ /i/ {interactive += $6; j_interactive += 1;}
+        END {print "running";
+             printf("small      : %4d /  216 nodes ( %3d jobs)\n", small, j_small);
+             printf("middle     : %4d /  288 nodes ( %3d jobs)\n", middle, j_middle);
+             printf("large      : %4d / 1008 nodes ( %3d jobs)\n", large,  j_large);
+             printf("acc-middle : %4d /  108 nodes ( %3d jobs)\n", accmiddle,j_accmiddle);
+             printf("acc-large  : %4d /  144 nodes ( %3d jobs)\n", acclarge,j_acclarge);
+             printf("fat        : %4d /   17 nodes ( %3d jobs)\n", fat, j_fat);
+             printf("int        : %4d /  108 nodes ( %3d jobs)\n", interactive, j_interactive);
+           }'
 fi
 
+if [ $# -gt 0 ]; then
 case "$1" in
   "small" ) qstat -a F4cpu B4cpu L4cpu \
             | gawk 'BEGIN {F=0; B=0; L=0;
@@ -238,3 +260,4 @@ case "$1" in
      }';;
   * ) echo $usage; exit -1;;
 esac
+fi
