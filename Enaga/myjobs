@@ -1,0 +1,25 @@
+#!/bin/sh
+
+## SekireiTools (https://github.com/yomichi/SekireiTools)
+## Copyright (c) Yuichi Motoyama <yomichi@tsg.jp>
+## Distributed under the Boost Software License Version 1.0.
+
+script_dir=$(dirname $(readlink -f $0))
+
+if [ $# -gt 0 ]
+then
+  USERS=$1
+else
+  if [ -f "${script_dir}/users.txt" ]
+  then
+    USERS=`cat "${script_dir}/users.txt"`
+  else
+    USERS="$USER"
+  fi
+fi
+
+qstat -w | head -n 5
+for user in ${USERS}; do
+qstat -rw -u $user | tail -n +6 
+qstat -Tiw -u $user | tail -n +7 
+done

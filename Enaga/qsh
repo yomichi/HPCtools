@@ -1,0 +1,55 @@
+#!/bin/sh
+usage="usage: $(basename $(readlink -f $0)) [--omp=NUM_OPENMP] [--dry] [NUM_NODE]"
+
+nnodes=1
+nprocs=1
+nthreads=40
+queue="cpu"
+dryrun=""
+
+for arg in $@; do
+    check_omp=""
+    check_omp=${arg#--omp=}
+    check_queue=""
+    check_queue=${arg#--queue=}
+    if [ "$check_omp" != "$arg" ]; then
+        if [ "_`echo $check_omp | grep -E '^[0-9]+$'`" == "_" ]; then
+            echo $usage
+            exit 64
+        fi
+        nthreads=$check_omp
+    elif [ "$arg" == "--dry" ]; then
+        dryrun=1
+    elif [ "_`echo $arg | grep -E '^[0-9]+$'`" == "_" ]; then
+        echo $usage
+        exit 64
+    else
+        nnodes=$arg
+    fi
+done
+
+case $queue in
+  * )
+    case $nthreads in
+        1  ) nprocs=`echo 40 \* $nnodes | bc -l` ;;
+        2  ) nprocs=`echo 20 \* $nnodes | bc -l` ;;
+        4  ) nprocs=`echo 10 \* $nnodes | bc -l` ;;
+        5  ) nprocs=`echo 8 \* $nnodes | bc -l` ;;
+        8  ) nprocs=`echo 5 \* $nnodes | bc -l` ;;
+        10 ) nprocs=`echo 4 \* $nnodes | bc -l` ;;
+        20 ) nprocs=`echo 2 \* $nnodes | bc -l` ;;
+        40 ) nprocs=`echo 1 \* $nnodes | bc -l` ;;
+        *  ) echo "Invalid input: --omp=<NUM_OPENMP> should be divisor of 40."; exit 64;; 
+    esac;;
+esac
+
+case $queue in
+    "cpu" ) queue=i4cpu;;
+    *) echo $usage && exit 64;;
+esac
+
+if [ "$dryrun" == "1" ]; then
+    echo "qsub -queue $queue -node $nnodes -mpi $nprocs -omp $nthreads -X -I"
+else
+    /opt/pbs/default/bin/qsub -queue i4cpu -node $nnodes -mpi $nprocs -omp $nthreads -X -I 
+fi
