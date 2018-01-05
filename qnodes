@@ -27,8 +27,8 @@ qstat -a \
              printf("small      : %4d /  216 nodes ( %3d jobs)\n", small, j_small);
              printf("middle     : %4d /  288 nodes ( %3d jobs)\n", middle, j_middle);
              printf("large      : %4d / 1008 nodes ( %3d jobs)\n", large,  j_large);
-             printf("acc-middle : %4d /  108 nodes ( %3d jobs)\n", accmiddle,j_accmiddle);
-             printf("acc-large  : %4d /  144 nodes ( %3d jobs)\n", acclarge,j_acclarge);
+             printf("acc-middle : %4d /  180 nodes ( %3d jobs)\n", accmiddle,j_accmiddle);
+             printf("acc-large  : %4d /   72 nodes ( %3d jobs)\n", acclarge,j_acclarge);
              printf("fat        : %4d /   17 nodes ( %3d jobs)\n", fat, j_fat);
              printf("int        : %4d /  108 nodes ( %3d jobs)\n", interactive, j_interactive);
            }'
@@ -164,7 +164,7 @@ case "$1" in
          print "F18acc  :", F, "nodes /", Fj, "jobs";
          print "L18acc  :", L, "nodes /", Lj, "jobs";
          print "B18acc  :", B, "nodes /", Bj, "jobs";
-         print "total   :", F+L+B, "/ 108 nodes";
+         print "total   :", F+L+B, "/ 180 nodes";
          print ""
          print "waiting :";
          print "F18acc  :", WF, "nodes /", WFj, "jobs";
@@ -197,7 +197,7 @@ case "$1" in
          print "running :";
          print "F72acc  :", F, "nodes /", Fj, "jobs";
          print "B72acc  :", B, "nodes /", Bj, "jobs";
-         print "total   :", F+L+B, "/ 144 nodes";
+         print "total   :", F+L+B, "/ 72 nodes";
          print ""
          print "waiting :";
          print "F72acc  :", WF, "nodes /", WFj, "jobs";
@@ -243,15 +243,15 @@ case "$1" in
     $10 ~ /R/ && $3 ~ /i18cpu/ {C += $6;
                                cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s cpu %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s cpu %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
     $10 ~ /R/ && $3 ~ /i9acc/ {A += $6;
                                cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s acc %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s acc %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
     $10 ~ /R/ && $3 ~ /i1fat/ {F += $6;
                                cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s fat %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s fat %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
     $10 ~ /(Q|H)/ {Wnode += $6; Wjob+=1}
     END {print "i18cpu  :", C, "/ 72";
          print "i9acc   :", A, "/ 36";

@@ -13,7 +13,7 @@ elif que == 'middle':
 elif que == 'large':
     exq = '&& $12 ~ /r[3478]/'
 elif que == 'acc-middle':
-    exq = '&& $12 ~ /r5/'
+    exq = '&& $12 ~ /r[56]/'
 elif que == 'acc-large':
     exq = '&& $12 ~ /r6/'
 elif que == 'fat':
@@ -53,7 +53,7 @@ descriptions = {
         'r3' : '144cpu',
         'r4' : '144cpu',
         'r5' : '18acc + iacc',
-        'r6' : '72acc',
+        'r6' : '18acc + 72acc',
         'r7' : '144cpu',
         'r8' : '144cpu',
         'uv' : 'fat',
@@ -119,7 +119,8 @@ elif que == 'large':
     for r in ['r3', 'r4', 'r7', 'r8']:
         print_rack(r)
 elif que == 'acc-middle':
-    print_rack('r5')
+    for r in ['r5', 'r6']:
+        print_rack(r)
 elif que == 'acc-large':
     print_rack('r6')
 elif que == 'fat':
