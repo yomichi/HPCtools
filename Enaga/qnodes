@@ -1,0 +1,145 @@
+#!/bin/sh
+
+## SekireiTools (https://github.com/yomichi/SekireiTools)
+## Copyright (c) Yuichi Motoyama <yomichi@tsg.jp>
+## Distributed under the Boost Software License Version 1.0.
+
+set -ue
+
+usage="usage: `basename $0` (small|middle|large|int)"
+
+if [ $# -eq 0 ]; then
+qstat -a \
+  | gawk 'BEGIN {small=0; middle=0; large=0;
+               interactive=0;
+               j_small=0; j_middle=0; j_large=0;
+               j_interactive=0}
+        $10 ~ /R/ && $3 ~ /(F|L|B)4cpu/ {small += $6; j_small += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)9cpu/ {middle += $6; j_middle += 1;}
+        $10 ~ /R/ && $3 ~ /(F|L|B)36cpu/ {large += $6; j_large += 1;}
+        $10 ~ /R/ && $3 ~ /i4cpu/ {interactive += $6; j_interactive += 1;}
+        END {print "running";
+             printf("small      : %4d /  216 nodes ( %3d jobs)\n", small, j_small);
+             printf("middle     : %4d /  288 nodes ( %3d jobs)\n", middle, j_middle);
+             printf("large      : %4d / 1008 nodes ( %3d jobs)\n", large,  j_large);
+             printf("int        : %4d /  108 nodes ( %3d jobs)\n", interactive, j_interactive);
+           }'
+fi
+
+if [ $# -gt 0 ]; then
+case "$1" in
+  "small" ) qstat -w F4cpu B4cpu L4cpu \
+            | gawk 'BEGIN {F=0; B=0; L=0;
+                           Fj=0; Bj=0; Lj=0;
+                           WF=0; WFj=0;
+                           WL=0; WLj=0;
+                           WB=0; WBj=0}
+    $10 ~ /R/ && $3 ~ /F4cpu/ {F += $6; Fj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1]; 
+                               printf "%s F %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /F4cpu/ {WF += $6; WFj += 1}
+    $10 ~ /R/ && $3 ~ /B4cpu/ {B += $6; Bj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s B %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /B4cpu/ {WB += $6; WBj += 1}
+    $10 ~ /R/ && $3 ~ /L4cpu/ {L += $6; Lj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s L %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /L4cpu/ {WL += $6; WLj += 1}
+    END {print ""
+         print "running :";
+         print "F4cpu   :", F, "nodes /", Fj, "jobs";
+         print "L4cpu   :", L, "nodes /", Lj, "jobs";
+         print "B4cpu   :", B, "nodes /", Bj, "jobs";
+         print "total   :", F+L+B, "/ 54 nodes";
+         print ""
+         print "waiting :";
+         print "F4cpu   :", WF, "nodes /", WFj, "jobs";
+         print "L4cpu   :", WL, "nodes /", WLj, "jobs";
+         print "B4cpu   :", WB, "nodes /", WBj, "jobs";
+         print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
+     }';;
+  "middle" ) qstat -w F9cpu B9cpu L9cpu \
+            | gawk 'BEGIN {F=0; B=0; L=0;
+                           Fj=0; Bj=0; Lj=0;
+                           WF=0; WFj=0;
+                           WL=0; WLj=0;
+                           WB=0; WBj=0}
+    $10 ~ /R/ && $3 ~ /F9cpu/ {F += $6; Fj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /F9cpu/ {WF += $6; WFj += 1}
+    $10 ~ /R/ && $3 ~ /B9cpu/ {B += $6; Bj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /B9cpu/ {WB += $6; WBj += 1}
+    $10 ~ /R/ && $3 ~ /L9cpu/ {L += $6; Lj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /L9cpu/ {WL += $6; WLj += 1}
+    END {print ""
+         print "running :";
+         print "F9cpu  :", F, "nodes /", Fj, "jobs";
+         print "L9cpu  :", L, "nodes /", Lj, "jobs";
+         print "B9cpu  :", B, "nodes /", Bj, "jobs";
+         print "total   :", F+L+B, "/ 36 nodes";
+         print ""
+         print "waiting :";
+         print "F36cpu  :", WF, "nodes /", WFj, "jobs";
+         print "L36cpu  :", WL, "nodes /", WLj, "jobs";
+         print "B36cpu  :", WB, "nodes /", WBj, "jobs";
+         print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
+     }';;
+  "large" ) qstat -w F36cpu B36cpu L36cpu \
+            | gawk 'BEGIN {F=0; B=0; L=0;
+                           Fj=0; Bj=0; Lj=0;
+                           WF=0; WFj=0;
+                           WL=0; WLj=0;
+                           WB=0; WBj=0}
+    $10 ~ /R/ && $3 ~ /F36cpu/ {F += $6; Fj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s F %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /F36cpu/ {WF += $6; WFj += 1}
+    $10 ~ /R/ && $3 ~ /B36cpu/ {B += $6; Bj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s B %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /B36cpu/ {WB += $6; WBj += 1}
+    $10 ~ /R/ && $3 ~ /L36cpu/ {L += $6; Lj += 1;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s L %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 !~ /R/ && $3 ~ /L36cpu/ {WL += $6; WLj += 1}
+    END {print ""
+         print "running :";
+         print "F36cpu :", F, "nodes /", Fj, "jobs";
+         print "L36cpu :", L, "nodes /", Lj, "jobs";
+         print "B36cpu :", B, "nodes /", Bj, "jobs";
+         print "total   :", F+L+B, "/ 144 nodes";
+         print ""
+         print "waiting :";
+         print "F144cpu :", WF, "nodes /", WFj, "jobs";
+         print "L144cpu :", WL, "nodes /", WLj, "jobs";
+         print "B144cpu :", WB, "nodes /", WBj, "jobs";
+         print "total   :", WF+WL+WB, " nodes /", WFj+WLj+WBj, "jobs";
+    }';;
+  "int" ) qstat -w i4cpu \
+            | gawk 'BEGIN {C=0; A=0; F=0; Wnode=0; Wjob=0;}
+    $10 ~ /R/ && $3 ~ /i18cpu/ {C += $6;
+                               cmd="username "$2; cmd | getline name; close(cmd);
+                               split($1,a,/\./); jobid = a[1];
+                               printf "%s cpu %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+    $10 ~ /(Q|H)/ {Wnode += $6; Wjob+=1}
+    END {print "i4cpu  :", C, "/ 18";
+         print "waiting :", Wnode, "nodes / ", Wjob, "jobs";
+     }';;
+  * ) echo $usage; exit -1;;
+esac
+fi
