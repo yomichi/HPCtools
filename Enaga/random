@@ -1,0 +1,3 @@
+#!/bin/sh
+## リッチ・ミカン, 「Compatible ShellScripting デスクトップリファレンス」, まつらリッチ研究所, 2015
+od -A n -t u4 -N 4 /dev/urandom | tr -d '\t '

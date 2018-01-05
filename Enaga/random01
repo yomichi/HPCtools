@@ -1,0 +1,4 @@
+#!/bin/sh
+set -ue
+scriptdir=$(cd $(dirname $0); pwd)
+printf "%.18lg\n" $(echo $($scriptdir/random)/4294967296 | bc -l)
