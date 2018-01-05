@@ -1,0 +1,79 @@
+#!/bin/sh
+set -u
+
+qsub_orig=qsub-orig
+
+if [ $# -eq 0 ]; then
+    cat << END
+usage: $(basename $0) [options] [job script]
+  -queue <queue name>                  (required)
+  -node <number of nodes>              (required)
+ [-mpi <number of MPI processes>]      (optional)
+                                       / default: #requested nodes x #cores
+ [-omp <num of threads per MPI proc>]  (optional) / default: 1
+ [-place <pack|distribute|cyclic>]     process placement (optional)
+                                       / default: pack
+ [-over <true|false>]                  whether or not to allow more processes
+                                       than cores (optional) / default: false
+ [-I]                                  submitting an interactive job (optional)
+ [job script]                          script filename (required except when
+                                       to submit an interactive job)
+ 
+The above options can also be specified by #QSUB directive in a job script. 
+ 
+ex.) #QSUB -queue F36cpu 
+     #QSUB -node 18 
+     #QSUB -mpi 432
+END
+    exit 64
+fi
+
+lock_dir="/tmp/lock_$USER"
+if [ ! -d $lock_dir ]; then
+    mkdir -p -m 700 $lock_dir
+fi
+
+script_dir=$(dirname $(readlink -f $0))
+lock_filename="lqsub.lck"
+
+lock_file=`${script_dir}/pexlock -d $lock_dir -w 60 $lock_filename`
+trap "${script_dir}/punlock -d $lock_dir $lock_filename" EXIT HUP INT QUIT ABRT BUS SEGV TERM
+
+logfile="$HOME/submitted_jobs.toml"
+
+jid=`$qsub_orig $@ 2>&1`
+if [ $? -ne 0 ];then
+    $qsub_orig $@
+    exit 64
+fi
+jid=`echo $jid | cut -d . -f 1,1 | grep -E '^[0-9]{6,}\s*$'`
+if [ -z $jid ]; then
+    $qsub_orig $@
+    exit 64
+fi
+
+wd=`pwd`
+dt=`date --rfc-3339=seconds | sed 's/ /T/'`
+qs=`qstat -a $jid | tail -n1`
+que=`echo $qs | awk '{print $3}'`
+name=`echo $qs | awk '{print $4}'`
+req_node=`echo $qs | awk '{print $6}'`
+req_time=`echo $qs | awk '{print $9}'`
+resource=`qstat -f $jid | awk '$1 ~ /Resource_List.select/ {print $3}'`
+mpi=`echo $resource | cut -d ':' -f 3,3 | cut -d '=' -f 2,2`
+omp=`echo $resource | cut -d ':' -f 4,4 | cut -d '=' -f 2,2`
+
+cat << END | tee -a $logfile
+[[Job]]
+JobID = $jid
+Date = $dt
+JobName = "$name"
+WorkDir = "$wd"
+Queue = "$que"
+ReqTime = "$req_time"
+NumNodes = $req_node
+NumMPIperNode = $mpi
+NumOMP = $omp
+
+END
+
