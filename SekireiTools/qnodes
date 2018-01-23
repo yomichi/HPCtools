@@ -43,19 +43,16 @@ case "$1" in
                            WL=0; WLj=0;
                            WB=0; WBj=0}
     $10 ~ /R/ && $3 ~ /F4cpu/ {F += $6; Fj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1]; 
-                               printf "%s F %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s F %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /F4cpu/ {WF += $6; WFj += 1}
     $10 ~ /R/ && $3 ~ /B4cpu/ {B += $6; Bj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s B %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s B %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /B4cpu/ {WB += $6; WBj += 1}
     $10 ~ /R/ && $3 ~ /L4cpu/ {L += $6; Lj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s L %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s L %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /L4cpu/ {WL += $6; WLj += 1}
     END {print ""
          print "running :";
@@ -77,19 +74,16 @@ case "$1" in
                            WL=0; WLj=0;
                            WB=0; WBj=0}
     $10 ~ /R/ && $3 ~ /F36cpu/ {F += $6; Fj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /F36cpu/ {WF += $6; WFj += 1}
     $10 ~ /R/ && $3 ~ /B36cpu/ {B += $6; Bj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /B36cpu/ {WB += $6; WBj += 1}
     $10 ~ /R/ && $3 ~ /L36cpu/ {L += $6; Lj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /L36cpu/ {WL += $6; WLj += 1}
     END {print ""
          print "running :";
@@ -111,19 +105,16 @@ case "$1" in
                            WL=0; WLj=0;
                            WB=0; WBj=0}
     $10 ~ /R/ && $3 ~ /F144cpu/ {F += $6; Fj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s F %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s F %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /F144cpu/ {WF += $6; WFj += 1}
     $10 ~ /R/ && $3 ~ /B144cpu/ {B += $6; Bj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s B %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s B %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /B144cpu/ {WB += $6; WBj += 1}
     $10 ~ /R/ && $3 ~ /L144cpu/ {L += $6; Lj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s L %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s L %15s %3snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /L144cpu/ {WL += $6; WLj += 1}
     END {print ""
          print "running :";
@@ -145,19 +136,16 @@ case "$1" in
                            WL=0; WLj=0;
                            WB=0; WBj=0}
     $10 ~ /R/ && $3 ~ /F18acc/ {F += $6; Fj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /F18acc/ {WF += $6; WFj += 1}
     $10 ~ /R/ && $3 ~ /B18acc/ {B += $6; Bj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /B18acc/ {WB += $6; WBj += 1}
     $10 ~ /R/ && $3 ~ /L18acc/ {L += $6; Lj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /L18acc/ {WL += $6; WLj += 1}
     END {print ""
          print "running :";
@@ -179,19 +167,16 @@ case "$1" in
                            WL=0; WLj=0;
                            WB=0; WBj=0}
     $10 ~ /R/ && $3 ~ /F72acc/ {F += $6; Fj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s F %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /F72acc/ {WF += $6; WFj += 1}
     $10 ~ /R/ && $3 ~ /B72acc/ {B += $6; Bj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s B %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /B72acc/ {WB += $6; WBj += 1}
     $10 ~ /R/ && $3 ~ /L72acc/ {L += $6; Lj +=1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s L %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /L72acc/ {WL += $6; WLj += 1}
     END {print ""
          print "running :";
@@ -211,19 +196,16 @@ case "$1" in
                            WL=0; WLj=0;
                            WB=0; WBj=0}
     $10 ~ /R/ && $3 ~ /F2fat/ {F += $6; Fj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s F %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s F %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /F2fat/ {WF += $6; WFj += 1}
     $10 ~ /R/ && $3 ~ /B2fat/ {B += $6; Bj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s B %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s B %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /B2fat/ {WB += $6; WBj += 1}
     $10 ~ /R/ && $3 ~ /L2fat/ {L += $6; Lj += 1;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s L %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s L %15s %snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 !~ /R/ && $3 ~ /L2fat/ {WL += $6; WLj += 1}
     END {print ""
         print "running :";
@@ -241,17 +223,14 @@ case "$1" in
   "int" ) qstat -w i18cpu i9acc i1fat \
             | gawk 'BEGIN {C=0; A=0; F=0; Wnode=0; Wjob=0;}
     $10 ~ /R/ && $3 ~ /i18cpu/ {C += $6;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s cpu %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s cpu %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 ~ /R/ && $3 ~ /i9acc/ {A += $6;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s acc %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s acc %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 ~ /R/ && $3 ~ /i1fat/ {F += $6;
-                               cmd="username "$2; cmd | getline name; close(cmd);
                                split($1,a,/\./); jobid = a[1];
-                               printf "%s fat %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, name}
+                               printf "%s fat %15s %2snodes %s/%s %s\n", jobid, $4, $6, $11, $9, $2}
     $10 ~ /(Q|H)/ {Wnode += $6; Wjob+=1}
     END {print "i18cpu  :", C, "/ 72";
          print "i9acc   :", A, "/ 36";
